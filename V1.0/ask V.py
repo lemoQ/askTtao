@@ -1,3 +1,5 @@
+import json
+import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -9,14 +11,7 @@ import logging
 import pyautogui
 import win32process
 import psutil
-import key_pre as mykey
-
-# 配置日志记录
-logging.basicConfig(filename='log.txt', level=logging.INFO,
-                    format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-
-# 定义全局变量 log_text
-log_text = None
+import myutils
 
 def minimize_all_windows():
     """最小化所有可见窗口"""
@@ -112,26 +107,30 @@ def test_button_clicked():
 
     if target_hwnd:
         try:
-            # 可选：激活窗口（可能导致窗口显示）
-            # activate_window(target_hwnd)
-
-            # 确保窗口有焦点（这一步可能导致窗口显示，根据需要调整）
+            # 确保窗口有焦点
             win32gui.SetForegroundWindow(target_hwnd)
-
+            time.sleep(0.5)  # 给窗口一些时间获取焦点
             # 模拟 Ctrl+B
             log_message("发送 Ctrl+B")
-            mykey.send_combination_to_hidden_window_msg(target_hwnd, [mykey.VK_CONTROL, mykey.VK_B])
+            pyautogui.hotkey('ctrl', 'b')
             time.sleep(0.5)
-
-            time.sleep(0.5)
-
             # 模拟 Alt+E
             log_message("发送 Alt+E")
-            # 发送 Alt+E
-            mykey.send_combination_to_hidden_window_msg(target_hwnd, [mykey.VK_MENU, mykey.VK_E])
+            pyautogui.hotkey('alt', 'e')
             time.sleep(0.5)
-
+            log_message("发送 Ctrl+B")
+            pyautogui.hotkey('ctrl', 'b')
+            time.sleep(0.5)
             log_message("已向窗口发送 Ctrl+B 和 Alt+E 组合键")
+
+            # 图像识别和点击功能
+            image_path = "V1.0/png/zd.png"
+            location = pyautogui.locateOnScreen(image_path, confidence=0.8)
+            log_message("点击组队")
+            pyautogui.leftClick(location)
+
+
+            # V1.0/png/zd.png  根据这个路径识别游戏窗口内的位置并点击
         except Exception as e:
             log_message(f"操作窗口时出错: {e}")
     else:

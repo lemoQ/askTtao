@@ -1,4 +1,3 @@
-import json
 import os
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -11,7 +10,13 @@ import logging
 import pyautogui
 import win32process
 import psutil
-import myutils
+
+# 配置日志记录
+logging.basicConfig(filename='log.txt', level=logging.INFO,
+                    format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+# 定义全局变量 log_text
+log_text = None
 
 def minimize_all_windows():
     """最小化所有可见窗口"""
@@ -107,13 +112,12 @@ def test_button_clicked():
 
     if target_hwnd:
         try:
-            # 确保窗口有焦点
+            # 可选：激活窗口（可能导致窗口显示）
+            # activate_window(target_hwnd)
+
+            # 确保窗口有焦点（这一步可能导致窗口显示，根据需要调整）
             win32gui.SetForegroundWindow(target_hwnd)
-            time.sleep(0.5)  # 给窗口一些时间获取焦点
-            # 模拟 Ctrl+B
-            log_message("发送 Ctrl+B")
-            pyautogui.hotkey('ctrl', 'b')
-            time.sleep(0.5)
+
             # 模拟 Alt+E
             log_message("发送 Alt+E")
             pyautogui.hotkey('alt', 'e')
@@ -122,31 +126,55 @@ def test_button_clicked():
             pyautogui.hotkey('ctrl', 'b')
             time.sleep(0.5)
             log_message("已向窗口发送 Ctrl+B 和 Alt+E 组合键")
-
-            # 图像识别和点击功能
-            image_path = "V1.0/png/zd.png"
-            location = pyautogui.locateOnScreen(image_path, confidence=0.8)
-            log_message("点击组队")
-            pyautogui.leftClick(location)
-
-
-            # V1.0/png/zd.png  根据这个路径识别游戏窗口内的位置并点击
         except Exception as e:
             log_message(f"操作窗口时出错: {e}")
     else:
         log_message("未找到目标窗口")
 
 
-def close_task():
-    log_message("关闭任务")
-    # 这里可以添加关闭任务的具体逻辑
-    messagebox.showinfo("提示", "任务已关闭")
+def yjzd():
+    log_message("一键组队")
+    target_hwnd = get_target("桂圆")
+    win32gui.SetForegroundWindow(target_hwnd)
+    # 图像识别和点击功能
+    image_path = "D:/CTTQ/lshPy/askTaoPy/V1.0/png/zd.png"
+    if not os.path.exists(image_path):
+        log_message(f"错误：图像文件不存在 - {image_path}")
+        return
+
+    location = pyautogui.locateOnScreen(image_path, confidence=0.8)
+    log_message("点击组队")
+    # 确保窗口有焦点（这一步可能导致窗口显示，根据需要调整）
+    win32gui.SetForegroundWindow(target_hwnd)
+    pyautogui.move(location)
+    time.sleep(1)
+    pyautogui.click(location)
+    log_message("组队完成")
 
 
-def save_window():
-    log_message("保存窗口")
+def jsdw():
+    log_message("解散队伍")
+    target_hwnd = get_target("桂圆")
+    win32gui.SetForegroundWindow(target_hwnd)
+    pyautogui.hotkey('ctrl', 'b')
+    pyautogui.hotkey('alt', 't')
+    time.sleep(0.5)
+    # 图像识别和点击功能
+    image_path = "D:/CTTQ/lshPy/askTaoPy/V1.0/png/ld.png"
+    if not os.path.exists(image_path):
+        log_message(f"错误：图像文件不存在 - {image_path}")
+        return
+
+    location = pyautogui.locateOnScreen(image_path, confidence=0.8)
+    log_message("点击离队")
+    # 确保窗口有焦点（这一步可能导致窗口显示，根据需要调整）
+    win32gui.SetForegroundWindow(target_hwnd)
+    pyautogui.moveTo(location)
+    time.sleep(1)
+    pyautogui.click(location)
+    log_message("离队完成")
     # 这里可以添加保存窗口的具体逻辑
-    messagebox.showinfo("提示", "窗口已保存")
+    # messagebox.showinfo("提示", "窗口已保存")
 
 
 def clear_data():
@@ -371,8 +399,8 @@ for txt in ["使用特八"]:
 button_frame = tk.Frame(root)
 button_frame.pack(pady=5, fill=tk.X)
 button_functions = {
-    "关闭任务": close_task,
-    "保存窗口": save_window,
+    "一键组队": yjzd,
+    "解散队伍": jsdw,
     "清空数据": clear_data,
     "删除选中行": delete_selected_row,
     "清空日志": clear_log,
@@ -447,3 +475,4 @@ log_text = tk.Text(log_frame)
 log_text.pack(fill=tk.BOTH, expand=True)
 
 root.mainloop()
+
